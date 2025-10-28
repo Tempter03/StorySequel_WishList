@@ -49,13 +49,13 @@ export default async function handler(req, res) {
     const msg = update.message || update.edited_message;
     if (!msg) return res.status(200).json({ ok: true });
 
-    const text = msg.text || '';
+    const text = msg.text || msg.caption || '';
     const from = msg.from?.first_name || 'Администратор';
 
     // 1) Если ответом на сообщение с маркером #sid:<sessionId>
     let sessionId = null;
-    if (msg.reply_to_message?.text) {
-      const rt = msg.reply_to_message.text;
+    if (msg.reply_to_message?.text || msg.reply_to_message?.caption) {
+      const rt = msg.reply_to_message.text || msg.reply_to_message.caption || '';
       const m = rt.match(/#sid:([a-z0-9_\-]+)/i);
       if (m) sessionId = m[1];
     }
