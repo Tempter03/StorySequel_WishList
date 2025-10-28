@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getWishlist } from '@/lib/storage';
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -16,7 +16,7 @@ export default function handler(
   }
 
   try {
-    const wishlist = getWishlist(id);
+    const wishlist = await getWishlist(id);
 
     if (!wishlist) {
       return res.status(404).json({ error: 'Wishlist not found' });

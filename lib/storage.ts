@@ -1,27 +1,65 @@
 import { Wishlist } from '@/types';
+import Redis from 'ioredis';
 
-// In-memory storage for Vercel serverless environment
-// Note: This will reset on each deployment. For production, use Vercel KV or a database.
-const wishlists: Record<string, Wishlist> = {};
+// Create Redis client
+const getRedisClient = () => {
+  if (!process.env.REDIS_URL) {
+    throw new Error('REDIS_URL environment variable is not set');
+  }
+  return new Redis(process.env.REDIS_URL);
+};
 
-export function saveWishlist(wishlist: Wishlist): void {
-  wishlists[wishlist.id] = wishlist;
+const WISHLIST_PREFIX = 'wishlist:';
+
+export async function saveWishlist(wishlist: Wishlist): Promise<void> {
+  const redis = getRedisClient();
+  try {
+    await redis.set(
+      `${WISHLIST_PREFIX}${wishlist.id}`,
+      JSON.stringify(wishlist)
+    );
+  } finally {
+    await redis.quit();
+  }
 }
 
-export function getWishlist(id: string): Wishlist | null {
-  return wishlists[id] || null;
+export async function getWishlist(id: string): Promise<Wishlist | null> {
+  const redis = getRedisClient();
+  try {
+    const data = await redis.get(`${WISHLIST_PREFIX}${id}`);
+    if (!data) return null;
+    return JSON.parse(data);
+  } finally {
+    await redis.quit();
+  }
 }
 
-export function getAllWishlists(): Record<string, Wishlist> {
-  return wishlists;
+export async function getAllWishlists(): Promise<Record<string, Wishlist>> {
+  const redis = getRedisClient();
+  try {
+    const keys = await redis.keys(`${WISHLIST_PREFIX}*`);
+    const wishlists: Record<string, Wishlist> = {};
+    
+    for (const key of keys) {
+      const data = await redis.get(key);
+      if (data) {
+        const wishlist = JSON.parse(data);
+        wishlists[wishlist.id] = wishlist;
+      }
+    }
+    
+    return wishlists;
+  } finally {
+    await redis.quit();
+  }
 }
 
-export function updateWishlist(id: string, updates: Partial<Wishlist>): Wishlist | null {
-  const wishlist = getWishlist(id);
+export async function updateWishlist(id: string, updates: Partial<Wishlist>): Promise<Wishlist | null> {
+  const wishlist = await getWishlist(id);
   if (!wishlist) return null;
   
   const updatedWishlist = { ...wishlist, ...updates };
-  saveWishlist(updatedWishlist);
+  await saveWishlist(updatedWishlist);
   return updatedWishlist;
 }
 

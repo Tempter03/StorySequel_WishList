@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getWishlist, saveWishlist } from '@/lib/storage';
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -16,7 +16,7 @@ export default function handler(
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const wishlist = getWishlist(wishlistId);
+    const wishlist = await getWishlist(wishlistId);
 
     if (!wishlist) {
       return res.status(404).json({ error: 'Wishlist not found' });
@@ -35,7 +35,7 @@ export default function handler(
     wishlist.items[itemIndex].reserved = true;
     wishlist.items[itemIndex].reservedBy = reservedBy || 'Гость';
 
-    saveWishlist(wishlist);
+    await saveWishlist(wishlist);
 
     res.status(200).json({ 
       success: true, 

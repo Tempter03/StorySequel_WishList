@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Wishlist, CreateWishlistRequest } from '@/types';
 import { saveWishlist } from '@/lib/storage';
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -30,7 +30,7 @@ export default function handler(
       })),
     };
 
-    saveWishlist(wishlist);
+    await saveWishlist(wishlist);
 
     res.status(201).json({ 
       success: true, 
