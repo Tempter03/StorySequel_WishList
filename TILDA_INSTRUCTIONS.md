@@ -54,32 +54,19 @@
 
 ---
 
-### 3️⃣ Обновите код для Tilda
+### 3️⃣ Обновите код для Tilda (Vercel)
 
-❌ **НЕ ИСПОЛЬЗУЙТЕ ЭТОТ КОД** (там указан Heroku):
+✅ **Используйте этот код** (подставьте адрес Vercel):
 ```html
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
     window.tildaChatWidgetConfig = {
-        serverUrl: 'https://storysequel-chat.herokuapp.com', ← НЕПРАВИЛЬНЫЙ АДРЕС!
+        serverUrl: 'https://<your-app>.vercel.app',
         userName: 'Гость'
     };
 </script>
-<link rel="stylesheet" href="https://storysequel-chat.herokuapp.com/widget.css">
-<script src="https://storysequel-chat.herokuapp.com/chat-widget.js"></script>
-```
-
-✅ **ИСПОЛЬЗУЙТЕ ЭТОТ КОД** (замените на ваш адрес Railway):
-```html
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-    window.tildaChatWidgetConfig = {
-        serverUrl: 'ВАШ_АДРЕС_RAILWAY',
-        userName: 'Гость'
-    };
-</script>
-<link rel="stylesheet" href="ВАШ_АДРЕС_RAILWAY/widget.css">
-<script src="ВАШ_АДРЕС_RAILWAY/chat-widget.js"></script>
+<link rel="stylesheet" href="https://<your-app>.vercel.app/widget.css">
+<script src="https://<your-app>.vercel.app/chat-widget.js"></script>
 ```
 
 **Пример:**
@@ -87,12 +74,12 @@
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
     window.tildaChatWidgetConfig = {
-        serverUrl: 'https://storysequel-chat.up.railway.app',
+        serverUrl: 'https://storysequel-chat.vercel.app',
         userName: 'Гость'
     };
 </script>
-<link rel="stylesheet" href="https://storysequel-chat.up.railway.app/widget.css">
-<script src="https://storysequel-chat.up.railway.app/chat-widget.js"></script>
+<link rel="stylesheet" href="https://storysequel-chat.vercel.app/widget.css">
+<script src="https://storysequel-chat.vercel.app/chat-widget.js"></script>
 ```
 
 ---

@@ -4,7 +4,7 @@
 class TildaChatWidget {
     constructor(config) {
         this.config = {
-            serverUrl: config.serverUrl || 'http://localhost:3000',
+            serverUrl: config.serverUrl || '',
             userName: config.userName || 'Гость',
             position: config.position || { bottom: '20px', right: '20px' },
             ...config
@@ -22,11 +22,8 @@ class TildaChatWidget {
         // Создаем HTML структуру
         this.createWidgetHTML();
 
-        // Получаем session ID
+        // Получаем session ID (через API Vercel)
         await this.connect();
-
-        // Подключаемся через WebSocket
-        this.connectSocket();
 
         // Назначаем обработчики событий
         this.attachEvents();
@@ -50,7 +47,7 @@ class TildaChatWidget {
                 <div class="chat-header">
                     <div>
                         <h3>💬 Чат поддержки</h3>
-                        <div class="status" id="connection-status">Подключение...</div>
+                        <div class="status" id="connection-status">Онлайн</div>
                     </div>
                     <button class="close-button" id="chat-close">&times;</button>
                 </div>
@@ -81,7 +78,8 @@ class TildaChatWidget {
 
     async connect() {
         try {
-            const response = await fetch(`${this.config.serverUrl}/api/chat/connect`, {
+            const base = this.config.serverUrl || window.location.origin;
+            const response = await fetch(`${base}/api/chat/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -98,50 +96,10 @@ class TildaChatWidget {
     }
 
     connectSocket() {
-        const socket = io(this.config.serverUrl);
-
-        socket.on('connect', () => {
-            console.log('WebSocket подключен');
-            this.updateStatus('Онлайн');
-            this.socket = socket;
-
-            // Отправляем session ID
-            socket.emit('join-session', this.sessionId);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('WebSocket отключен');
-            this.updateStatus('Переподключение...');
-        });
-
-        socket.on('message-history', (messages) => {
-            console.log('Получена история сообщений:', messages);
-            const typingIndicator = document.getElementById('typing-indicator');
-            typingIndicator.style.display = 'none';
-
-            messages.forEach(msg => {
-                this.addMessage(msg, false);
-            });
-
-            // Активируем ввод
-            document.getElementById('chat-input').disabled = false;
-            document.getElementById('send-button').disabled = false;
-        });
-
-        socket.on('new-message', (message) => {
-            console.log('Получено новое сообщение:', message);
-            this.addMessage(message);
-
-            // Если окно закрыто, увеличиваем счетчик непрочитанных
-            if (!this.isOpen) {
-                this.incrementUnreadCount();
-            }
-        });
-
-        socket.on('error', (error) => {
-            console.error('Ошибка WebSocket:', error);
-            this.updateStatus('Ошибка');
-        });
+        // После connect() загружаем историю и запускаем опрос новых сообщений
+        await this.loadHistory();
+        this.enableInput();
+        this.startPolling();
     }
 
     attachEvents() {
@@ -198,11 +156,27 @@ class TildaChatWidget {
         input.disabled = true;
         document.getElementById('send-button').disabled = true;
 
-        // Отправляем сообщение
-        this.socket.emit('send-message', {
-            sessionId: this.sessionId,
-            message: message,
-            userName: this.config.userName
+        // Отправляем в serverless API
+        const base = this.config.serverUrl || window.location.origin;
+        fetch(`${base}/api/chat/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: this.sessionId,
+                message: message,
+                userName: this.config.userName
+            })
+        }).then(() => {
+            // Добавляем сразу сообщение в интерфейс
+            this.addMessage({
+                id: `msg_${Date.now()}`,
+                text: message,
+                sender: 'user',
+                userName: this.config.userName,
+                timestamp: new Date().toISOString()
+            });
+        }).catch(() => {
+            this.updateStatus('Ошибка отправки');
         });
 
         // Очищаем поле ввода
@@ -281,11 +255,48 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Получаем конфигурацию из глобальной переменной
     const config = window.tildaChatWidgetConfig || {
-        serverUrl: 'http://localhost:3000',
+        serverUrl: '',
         userName: 'Гость'
     };
 
     // Создаем экземпляр виджета
     window.tildaChatWidget = new TildaChatWidget(config);
 });
+
+// Новые методы для Vercel API
+TildaChatWidget.prototype.enableInput = function () {
+    document.getElementById('chat-input').disabled = false;
+    document.getElementById('send-button').disabled = false;
+};
+
+TildaChatWidget.prototype.loadHistory = async function () {
+    const base = this.config.serverUrl || window.location.origin;
+    const res = await fetch(`${base}/api/chat/messages?sessionId=${encodeURIComponent(this.sessionId)}`);
+    const messages = await res.json();
+    const typingIndicator = document.getElementById('typing-indicator');
+    typingIndicator.style.display = 'none';
+    messages.forEach(m => this.addMessage(m, false));
+};
+
+TildaChatWidget.prototype.startPolling = function () {
+    let lastTs = Date.now();
+    this._pollTimer = setInterval(async () => {
+        try {
+            const base = this.config.serverUrl || window.location.origin;
+            const res = await fetch(`${base}/api/chat/messages?sessionId=${encodeURIComponent(this.sessionId)}&afterTs=${lastTs}`);
+            const messages = await res.json();
+            messages.forEach(m => {
+                this.addMessage(m);
+                // Если окно закрыто, увеличиваем счетчик непрочитанных
+                if (!this.isOpen && m.sender === 'admin') this.incrementUnreadCount();
+            });
+            if (messages.length) {
+                const latest = messages[messages.length - 1];
+                lastTs = new Date(latest.timestamp).getTime();
+            }
+        } catch (e) {
+            // no-op
+        }
+    }, 2000);
+};
 
