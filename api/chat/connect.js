@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     await store.initSession(sessionId);
     // список сообщений создастся при первом rpush в send
 
+    await store.addSession(sessionId);
     return res.status(200).json({ sessionId });
   } catch (e) {
     console.error('connect error', e);

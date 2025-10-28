@@ -2,6 +2,7 @@ import { kv as vercelKv } from '@vercel/kv';
 
 const memory = (globalThis.__chatStore ||= new Map());
 const replyMap = (globalThis.__replyTargets ||= new Map());
+const sessions = (globalThis.__chatSessions ||= new Map());
 
 function hasKv() {
   return Boolean(process.env.KV_URL && vercelKv);
@@ -16,6 +17,7 @@ export const store = {
     const list = memory.get(sessionId) || [];
     list.push(msg);
     memory.set(sessionId, list);
+    sessions.set(sessionId, { lastTs: Date.now() });
   },
   async listMessages(sessionId) {
     if (hasKv()) {
@@ -27,9 +29,21 @@ export const store = {
   async initSession(sessionId) {
     if (hasKv()) {
       await vercelKv.hset(`chat:${sessionId}`, { createdAt: Date.now() });
+      await vercelKv.zadd('chat:sessions', { score: Date.now(), member: sessionId });
     } else if (!memory.has(sessionId)) {
       memory.set(sessionId, []);
+      sessions.set(sessionId, { lastTs: Date.now() });
     }
+  },
+  async addSession(sessionId) {
+    return this.initSession(sessionId);
+  },
+  async listSessions(limit = 100) {
+    if (hasKv()) {
+      const ids = await vercelKv.zrevrange('chat:sessions', 0, limit - 1);
+      return ids.map((id) => ({ sessionId: id }));
+    }
+    return Array.from(sessions.keys()).slice(-limit).reverse().map((id) => ({ sessionId: id }));
   },
   async setReplyTarget(chatId, sessionId, userId) {
     // сохраняем соответствие ЧАТА (а не пользователя) и целевой сессии на 10 минут

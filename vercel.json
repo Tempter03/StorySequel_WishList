@@ -3,7 +3,10 @@
   "routes": [
     { "src": "/", "dest": "/public/index.html" },
     { "src": "/widget.css", "dest": "/public/widget.css" },
-    { "src": "/chat-widget.js", "dest": "/public/chat-widget.js" }
+    { "src": "/chat-widget.js", "dest": "/public/chat-widget.js" },
+    { "src": "/admin", "dest": "/public/admin.html" },
+    { "src": "/admin.css", "dest": "/public/admin.css" },
+    { "src": "/admin.js", "dest": "/public/admin.js" }
   ]
 }
 
