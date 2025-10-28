@@ -93,7 +93,10 @@ export default function Home() {
   return (
     <div className="container">
       <header className="header fade-in">
-        <h1>🌸 Карта желаний</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '10px' }}>
+          <img src="/logo.svg" alt="StorySequel" width="50" height="50" />
+          <h1 style={{ margin: 0 }}>Карта желаний</h1>
+        </div>
         <p>Создайте список желаемых букетов и поделитесь им с близкими</p>
       </header>
 

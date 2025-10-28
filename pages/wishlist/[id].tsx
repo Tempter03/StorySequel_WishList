@@ -124,7 +124,10 @@ export default function WishlistPage() {
   return (
     <div className="container">
       <header className="header fade-in">
-        <h1>🌸 Карта желаний</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '15px' }}>
+          <img src="/logo.svg" alt="StorySequel" width="50" height="50" />
+          <h1 style={{ margin: 0 }}>Карта желаний</h1>
+        </div>
         <p style={{ fontSize: '1.2rem', marginBottom: '8px' }}>от {wishlist.creatorName}</p>
         <p style={{ fontSize: '0.95rem', opacity: 0.9 }}>📍 Адрес доставки: {wishlist.deliveryAddress}</p>
       </header>
