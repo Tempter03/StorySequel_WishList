@@ -95,7 +95,7 @@ class TildaChatWidget {
         }
     }
 
-    connectSocket() {
+async connectSocket() {
         // После connect() загружаем историю и запускаем опрос новых сообщений
         await this.loadHistory();
         this.enableInput();
