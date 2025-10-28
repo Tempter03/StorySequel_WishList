@@ -29,20 +29,33 @@ export default async function handler(req, res) {
         const sessionId = data.slice('reply:'.length);
         const chatId = cq.message?.chat?.id || cq.from.id;
         await store.setReplyTarget(chatId, sessionId);
-        // подтвердим нажание и подскажем
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
         try {
+          // 1) ответим на нажатие (убирает крутилку)
           await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ callback_query_id: cq.id, text: 'Режим ответа активирован', show_alert: false })
+            body: JSON.stringify({ callback_query_id: cq.id, text: 'Режим ответа включён', show_alert: false })
           });
+          // 2) визуально обновим кнопку
+          await fetch(`https://api.telegram.org/bot${botToken}/editMessageReplyMarkup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_id: cq.message?.message_id,
+              reply_markup: { inline_keyboard: [[{ text: `Ответ активен (${sessionId})`, callback_data: `reply:${sessionId}` }]] }
+            })
+          });
+          // 3) пришлём явную подсказку в чат
           await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: `Режим ответа активирован для ${sessionId}. Напишите ответ — он уйдёт пользователю.` })
+            body: JSON.stringify({ chat_id: chatId, text: `Напишите ответ — он уйдёт пользователю (сессия: ${sessionId}).` })
           });
-        } catch {}
+        } catch (err) {
+          console.error('callback reply error', err);
+        }
         return res.status(200).json({ ok: true });
       }
     }
