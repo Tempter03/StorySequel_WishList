@@ -25,6 +25,9 @@ class TildaChatWidget {
         // Получаем session ID (через API Vercel)
         await this.connect();
 
+        // Загружаем историю и запускаем опрос
+        await this.connectSocket();
+
         // Назначаем обработчики событий
         this.attachEvents();
     }
