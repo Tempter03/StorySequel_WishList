@@ -1,4 +1,4 @@
-import { store } from './_store';
+import { store } from './_store.js';
 
 export const config = {
   api: {
