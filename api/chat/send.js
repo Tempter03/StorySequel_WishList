@@ -25,12 +25,20 @@ export default async function handler(req, res) {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
     if (botToken && chatId) {
-      // Вшиваем sessionId в низ сообщения как маркер для reply
+      // Вшиваем sessionId и добавляем кнопку "Ответить"
       const text = `👤 ${userName}:\n${message}\n\n#sid:${sessionId}`;
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text })
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          reply_markup: {
+            inline_keyboard: [[
+              { text: 'Ответить пользователю', callback_data: `reply:${sessionId}` }
+            ]]
+          }
+        })
       });
     }
 

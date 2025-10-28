@@ -1,6 +1,7 @@
 import { kv as vercelKv } from '@vercel/kv';
 
 const memory = (globalThis.__chatStore ||= new Map());
+const replyMap = (globalThis.__replyTargets ||= new Map());
 
 function hasKv() {
   return Boolean(process.env.KV_URL && vercelKv);
@@ -29,6 +30,20 @@ export const store = {
     } else if (!memory.has(sessionId)) {
       memory.set(sessionId, []);
     }
+  },
+  async setReplyTarget(chatId, sessionId) {
+    // сохраняем в памяти соответствие оператора и целевой сессии на 10 минут
+    replyMap.set(String(chatId), { sessionId, ts: Date.now() });
+  },
+  async getReplyTarget(chatId) {
+    const rec = replyMap.get(String(chatId));
+    if (!rec) return null;
+    // истечение через 10 минут
+    if (Date.now() - rec.ts > 10 * 60 * 1000) {
+      replyMap.delete(String(chatId));
+      return null;
+    }
+    return rec.sessionId;
   }
 };
 

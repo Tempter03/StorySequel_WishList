@@ -21,6 +21,18 @@ export default async function handler(req, res) {
 
   try {
     const update = await readBody(req);
+    // 1) Обработка нажатия inline-кнопки
+    if (update.callback_query) {
+      const cq = update.callback_query;
+      const data = cq.data || '';
+      if (data.startsWith('reply:')) {
+        const sessionId = data.slice('reply:'.length);
+        await store.setReplyTarget(cq.from.id, sessionId);
+        // подтверждаем и подсказываем формат
+        return res.status(200).json({ ok: true });
+      }
+    }
+
     const msg = update.message || update.edited_message;
     if (!msg) return res.status(200).json({ ok: true });
 
@@ -35,8 +47,15 @@ export default async function handler(req, res) {
       if (m) sessionId = m[1];
     }
 
-    // 2) Фолбэк: формат "session_xxx: ответ"
+    // 2) Если пользователь нажимал кнопку, используем сохранённую цель
     let answer = text;
+    if (!sessionId) {
+      const target = await store.getReplyTarget(msg.from?.id);
+      if (target) {
+        sessionId = target;
+      }
+    }
+    // 3) Фолбэк: формат "session_xxx: ответ"
     if (!sessionId) {
       const m2 = text.match(/^(session_[a-z0-9_\-]+)\s*:\s*([\s\S]+)/i);
       if (m2) {
