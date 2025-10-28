@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       if (data.startsWith('reply:')) {
         const sessionId = data.slice('reply:'.length);
         const chatId = cq.message?.chat?.id || cq.from.id;
-        await store.setReplyTarget(chatId, sessionId);
+        await store.setReplyTarget(chatId, sessionId, cq.from?.id);
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
         try {
           // 1) ответим на нажатие (убирает крутилку)
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     // 3) Если пользователь нажимал кнопку, используем сохранённую цель
     if (!sessionId) {
       const chatId = msg.chat?.id || msg.from?.id;
-      const target = await store.getReplyTarget(chatId);
+      const target = await store.getReplyTargetAny(chatId, msg.from?.id);
       if (target) {
         sessionId = target;
       }

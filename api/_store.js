@@ -31,16 +31,28 @@ export const store = {
       memory.set(sessionId, []);
     }
   },
-  async setReplyTarget(chatId, sessionId) {
+  async setReplyTarget(chatId, sessionId, userId) {
     // сохраняем соответствие ЧАТА (а не пользователя) и целевой сессии на 10 минут
     replyMap.set(String(chatId), { sessionId, ts: Date.now() });
+    if (userId) replyMap.set(`u:${String(userId)}`, { sessionId, ts: Date.now() });
   },
-  async getReplyTarget(chatId) {
+  async getReplyTarget(chatId, userId) {
     const rec = replyMap.get(String(chatId));
     if (!rec) return null;
     // истечение через 10 минут
     if (Date.now() - rec.ts > 10 * 60 * 1000) {
       replyMap.delete(String(chatId));
+      return null;
+    }
+    return rec.sessionId;
+  },
+  async getReplyTargetAny(chatId, userId) {
+    const first = await this.getReplyTarget(chatId, userId);
+    if (first) return first;
+    const rec = replyMap.get(`u:${String(userId)}`);
+    if (!rec) return null;
+    if (Date.now() - rec.ts > 10 * 60 * 1000) {
+      replyMap.delete(`u:${String(userId)}`);
       return null;
     }
     return rec.sessionId;
