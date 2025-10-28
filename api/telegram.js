@@ -27,7 +27,8 @@ export default async function handler(req, res) {
       const data = cq.data || '';
       if (data.startsWith('reply:')) {
         const sessionId = data.slice('reply:'.length);
-        await store.setReplyTarget(cq.from.id, sessionId);
+        const chatId = cq.message?.chat?.id || cq.from.id;
+        await store.setReplyTarget(chatId, sessionId);
         // подтвердим нажание и подскажем
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
         try {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
           await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: cq.message?.chat?.id || cq.from.id, text: 'Напишите ответ — он уйдёт пользователю.' })
+            body: JSON.stringify({ chat_id: chatId, text: `Режим ответа активирован для ${sessionId}. Напишите ответ — он уйдёт пользователю.` })
           });
         } catch {}
         return res.status(200).json({ ok: true });
@@ -72,7 +73,8 @@ export default async function handler(req, res) {
 
     // 3) Если пользователь нажимал кнопку, используем сохранённую цель
     if (!sessionId) {
-      const target = await store.getReplyTarget(msg.from?.id);
+      const chatId = msg.chat?.id || msg.from?.id;
+      const target = await store.getReplyTarget(chatId);
       if (target) {
         sessionId = target;
       }

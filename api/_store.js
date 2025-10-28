@@ -32,7 +32,7 @@ export const store = {
     }
   },
   async setReplyTarget(chatId, sessionId) {
-    // сохраняем в памяти соответствие оператора и целевой сессии на 10 минут
+    // сохраняем соответствие ЧАТА (а не пользователя) и целевой сессии на 10 минут
     replyMap.set(String(chatId), { sessionId, ts: Date.now() });
   },
   async getReplyTarget(chatId) {
