@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { store } from './_store';
 
 export const config = {
   api: {
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString()
     };
 
-    await kv.rpush(`chat:${sessionId}:messages`, JSON.stringify(adminMessage));
+    await store.appendMessage(sessionId, adminMessage);
 
     return res.status(200).json({ ok: true });
   } catch (e) {

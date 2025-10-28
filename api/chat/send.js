@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { store } from '../_store';
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
@@ -10,7 +10,8 @@ export default async function handler(req, res) {
 
   try {
     const { sessionId, message, userName = 'Гость' } = req.body || {};
-    if (!sessionId || !message) return res.status(400).json({ error: 'sessionId and message are required' });
+    if (!sessionId) return res.status(400).json({ error: 'sessionId is required' });
+    if (!message) return res.status(400).json({ error: 'message is required' });
 
     const msg = {
       id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString()
     };
 
-    await kv.rpush(`chat:${sessionId}:messages`, JSON.stringify(msg));
+    await store.appendMessage(sessionId, msg);
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ ok: true, message: msg });
   } catch (e) {
-    console.error(e);
+    console.error('send error', e);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

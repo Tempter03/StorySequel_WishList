@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { store } from '../_store';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,20 +7,22 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { sessionId, afterTs } = req.query;
+  const { sessionId, afterTs } = req.query || {};
   if (!sessionId) return res.status(400).json({ error: 'sessionId is required' });
 
-  const list = await kv.lrange(`chat:${sessionId}:messages`, 0, -1);
-  const messages = (list || []).map((x) => {
-    try { return JSON.parse(x); } catch { return null; }
-  }).filter(Boolean);
+  try {
+    const messages = await store.listMessages(sessionId);
 
   if (afterTs) {
     const ts = Number(afterTs);
     return res.status(200).json(messages.filter(m => new Date(m.timestamp).getTime() > ts));
   }
 
-  return res.status(200).json(messages);
+    return res.status(200).json(messages);
+  } catch (e) {
+    console.error('messages error', e);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
 
 
