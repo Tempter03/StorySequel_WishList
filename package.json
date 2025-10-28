@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Виджет чата для Tilda с интеграцией Telegram",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
@@ -17,8 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@vercel/kv": "^1.0.1",
-    "node-fetch": "^3.3.2"
+    "@vercel/kv": "^1.0.1"
   },
   "devDependencies": {
     "vercel": "^39.1.0"

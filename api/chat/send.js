@@ -1,5 +1,4 @@
 import { store } from '../_store';
-import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
