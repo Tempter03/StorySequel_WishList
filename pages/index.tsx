@@ -196,7 +196,7 @@ export default function Home() {
       <footer className="footer">
         <p>
           <a href="https://storysequel.tilda.ws/fandb" target="_blank" rel="noopener noreferrer">
-            Перейти в магазин StoryFlowers
+            Перейти в магазин StorySequel
           </a>
         </p>
       </footer>

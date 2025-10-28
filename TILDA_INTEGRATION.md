@@ -313,3 +313,7 @@ function openWishlistPopup() {
 
 Если нужна помощь с интеграцией, пишите на storyflowerssss@gmail.com
 
+---
+
+Сделано для StorySequel 🌸
+
