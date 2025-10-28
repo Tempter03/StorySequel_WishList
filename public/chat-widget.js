@@ -253,7 +253,9 @@ function __initTildaChatWidget() {
             const link = document.createElement('link');
             link.id = 'tilda-chat-widget-styles';
             link.rel = 'stylesheet';
-            link.href = window.tildaChatWidgetConfig?.stylesUrl || './widget.css';
+            // Явно используем абсолютный путь, если задан serverUrl
+            const base = (window.tildaChatWidgetConfig && window.tildaChatWidgetConfig.serverUrl) || window.location.origin;
+            link.href = (window.tildaChatWidgetConfig?.stylesUrl) || `${base.replace(/\/$/, '')}/widget.css`;
             document.head.appendChild(link);
         }
 
