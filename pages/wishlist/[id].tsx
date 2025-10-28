@@ -225,7 +225,7 @@ export default function WishlistPage() {
         <ol style={{ paddingLeft: '20px', color: '#666', lineHeight: '1.8' }}>
           <li>Нажмите "Я подарю" на понравившемся букете</li>
           <li>Укажите ваше имя, чтобы забронировать букет</li>
-          <li>Перейдите в <a href="https://storysequel.tilda.ws/fandb" target="_blank" rel="noopener noreferrer" style={{ color: '#4a8c5f', fontWeight: '600' }}>магазин StorySequel</a></li>
+          <li>Перейдите в <a href="https://storysequel.tilda.ws/fandb" target="_blank" rel="noopener noreferrer" style={{ color: '#FF69B4', fontWeight: '600' }}>магазин StorySequel</a></li>
           <li>Оформите заказ на выбранный букет</li>
           <li>Укажите желаемую дату доставки при оформлении</li>
         </ol>
