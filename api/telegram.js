@@ -28,7 +28,20 @@ export default async function handler(req, res) {
       if (data.startsWith('reply:')) {
         const sessionId = data.slice('reply:'.length);
         await store.setReplyTarget(cq.from.id, sessionId);
-        // подтверждаем и подсказываем формат
+        // подтвердим нажание и подскажем
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+        try {
+          await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ callback_query_id: cq.id, text: 'Режим ответа активирован', show_alert: false })
+          });
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: cq.message?.chat?.id || cq.from.id, text: 'Напишите ответ — он уйдёт пользователю.' })
+          });
+        } catch {}
         return res.status(200).json({ ok: true });
       }
     }
@@ -47,15 +60,24 @@ export default async function handler(req, res) {
       if (m) sessionId = m[1];
     }
 
-    // 2) Если пользователь нажимал кнопку, используем сохранённую цель
+    // 2) Поддержка формата "#sid:session_xxx: текст"
     let answer = text;
+    if (!sessionId) {
+      const m3 = text.match(/^#sid:([a-z0-9_\-]+)\s*:\s*([\s\S]+)/i);
+      if (m3) {
+        sessionId = m3[1];
+        answer = m3[2];
+      }
+    }
+
+    // 3) Если пользователь нажимал кнопку, используем сохранённую цель
     if (!sessionId) {
       const target = await store.getReplyTarget(msg.from?.id);
       if (target) {
         sessionId = target;
       }
     }
-    // 3) Фолбэк: формат "session_xxx: ответ"
+    // 4) Фолбэк: формат "session_xxx: ответ"
     if (!sessionId) {
       const m2 = text.match(/^(session_[a-z0-9_\-]+)\s*:\s*([\s\S]+)/i);
       if (m2) {
