@@ -242,26 +242,33 @@ class TildaChatWidget {
     }
 }
 
-// Инициализация виджета при загрузке страницы
-window.addEventListener('DOMContentLoaded', () => {
-    // Вставляем CSS если его ещё нет
-    if (!document.getElementById('tilda-chat-widget-styles')) {
-        const link = document.createElement('link');
-        link.id = 'tilda-chat-widget-styles';
-        link.rel = 'stylesheet';
-        link.href = window.tildaChatWidgetConfig?.stylesUrl || './widget.css';
-        document.head.appendChild(link);
+// Инициализация виджета (работает и если DOM уже загружен)
+function __initTildaChatWidget() {
+    try {
+        // Вставляем CSS если его ещё нет
+        if (!document.getElementById('tilda-chat-widget-styles')) {
+            const link = document.createElement('link');
+            link.id = 'tilda-chat-widget-styles';
+            link.rel = 'stylesheet';
+            link.href = window.tildaChatWidgetConfig?.stylesUrl || './widget.css';
+            document.head.appendChild(link);
+        }
+
+        const config = window.tildaChatWidgetConfig || {
+            serverUrl: '',
+            userName: 'Гость'
+        };
+        window.tildaChatWidget = new TildaChatWidget(config);
+    } catch (e) {
+        // no-op
     }
+}
 
-    // Получаем конфигурацию из глобальной переменной
-    const config = window.tildaChatWidgetConfig || {
-        serverUrl: '',
-        userName: 'Гость'
-    };
-
-    // Создаем экземпляр виджета
-    window.tildaChatWidget = new TildaChatWidget(config);
-});
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', __initTildaChatWidget);
+} else {
+    __initTildaChatWidget();
+}
 
 // Новые методы для Vercel API
 TildaChatWidget.prototype.enableInput = function () {
