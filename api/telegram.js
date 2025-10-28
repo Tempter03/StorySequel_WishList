@@ -27,13 +27,25 @@ export default async function handler(req, res) {
     const text = msg.text || '';
     const from = msg.from?.first_name || 'Администратор';
 
-    // Ожидаем, что оператор начнет сообщение с sessionId, например:
-    // session_12345: Ответ
-    const match = text.match(/^(session_[a-z0-9_\-]+)\s*:\s*([\s\S]+)/i);
-    if (!match) return res.status(200).json({ ok: true });
+    // 1) Если ответом на сообщение с маркером #sid:<sessionId>
+    let sessionId = null;
+    if (msg.reply_to_message?.text) {
+      const rt = msg.reply_to_message.text;
+      const m = rt.match(/#sid:([a-z0-9_\-]+)/i);
+      if (m) sessionId = m[1];
+    }
 
-    const sessionId = match[1];
-    const answer = match[2];
+    // 2) Фолбэк: формат "session_xxx: ответ"
+    let answer = text;
+    if (!sessionId) {
+      const m2 = text.match(/^(session_[a-z0-9_\-]+)\s*:\s*([\s\S]+)/i);
+      if (m2) {
+        sessionId = m2[1];
+        answer = m2[2];
+      } else {
+        return res.status(200).json({ ok: true });
+      }
+    }
 
     const adminMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
