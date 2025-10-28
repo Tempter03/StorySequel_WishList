@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { READY_BOUQUETS } from '@/data/bouquets';
 
 interface WishlistItemForm {
   bouquetName: string;
@@ -11,11 +12,15 @@ export default function Home() {
   const router = useRouter();
   const [creatorName, setCreatorName] = useState('');
   const [creatorEmail, setCreatorEmail] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [items, setItems] = useState<WishlistItemForm[]>([
     { bouquetName: '', date: '', notes: '' }
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Минимальная дата - сегодня
+  const today = new Date().toISOString().split('T')[0];
 
   const addItem = () => {
     setItems([...items, { bouquetName: '', date: '', notes: '' }]);
@@ -42,6 +47,11 @@ export default function Home() {
       return;
     }
 
+    if (!deliveryAddress.trim()) {
+      setError('Пожалуйста, введите адрес доставки');
+      return;
+    }
+
     const validItems = items.filter(item => item.bouquetName.trim() && item.date);
     
     if (validItems.length === 0) {
@@ -60,6 +70,7 @@ export default function Home() {
         body: JSON.stringify({
           creatorName,
           creatorEmail: creatorEmail || undefined,
+          deliveryAddress,
           items: validItems,
         }),
       });
@@ -111,6 +122,18 @@ export default function Home() {
             />
           </div>
 
+          <div className="form-group">
+            <label className="form-label">Адрес доставки *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              placeholder="Москва, ул. Примерная, д. 1, кв. 1"
+              required
+            />
+          </div>
+
           <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #f0f0f0' }} />
 
           <h2 style={{ marginBottom: '20px', color: '#333', fontSize: '1.5rem' }}>
@@ -122,15 +145,21 @@ export default function Home() {
               <div key={index} className="wishlist-item">
                 <div className="grid grid-2">
                   <div className="form-group">
-                    <label className="form-label">Название букета *</label>
-                    <input
-                      type="text"
+                    <label className="form-label">Букет *</label>
+                    <select
                       className="form-input"
                       value={item.bouquetName}
                       onChange={(e) => updateItem(index, 'bouquetName', e.target.value)}
-                      placeholder="Например: Букет роз 'Романтика'"
                       required
-                    />
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <option value="">Выберите букет</option>
+                      {READY_BOUQUETS.map((bouquet) => (
+                        <option key={bouquet.id} value={bouquet.name}>
+                          {bouquet.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-group">
@@ -140,6 +169,7 @@ export default function Home() {
                       className="form-input"
                       value={item.date}
                       onChange={(e) => updateItem(index, 'date', e.target.value)}
+                      min={today}
                       required
                     />
                   </div>

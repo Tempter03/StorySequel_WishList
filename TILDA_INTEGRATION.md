@@ -38,7 +38,7 @@
 
 <style>
 .wishlist-banner {
-  background: linear-gradient(135deg, #fdfbfb 0%, #f7f3f0 100%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%);
   padding: 60px 20px;
   text-align: center;
   margin: 40px 0;
@@ -59,7 +59,7 @@
 
 .wishlist-title {
   font-size: 2.5rem;
-  color: #333;
+  color: #2d5f3f;
   margin-bottom: 15px;
   font-weight: 700;
 }
@@ -73,21 +73,21 @@
 
 .wishlist-button {
   display: inline-block;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #2d5f3f 0%, #4a8c5f 100%);
   color: white !important;
   padding: 18px 45px;
   border-radius: 30px;
   text-decoration: none !important;
   font-size: 1.2rem;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+  box-shadow: 0 4px 15px rgba(45, 95, 63, 0.4);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .wishlist-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+  box-shadow: 0 6px 20px rgba(45, 95, 63, 0.6);
 }
 
 @keyframes float {
@@ -131,21 +131,21 @@
 <style>
 .wishlist-menu-btn {
   display: inline-block;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #2d5f3f 0%, #4a8c5f 100%);
   color: white !important;
   padding: 10px 25px;
   border-radius: 20px;
   text-decoration: none !important;
   font-size: 0.95rem;
   font-weight: 600;
-  box-shadow: 0 2px 10px rgba(240, 147, 251, 0.3);
+  box-shadow: 0 2px 10px rgba(45, 95, 63, 0.3);
   transition: all 0.3s ease;
   margin-left: 15px;
 }
 
 .wishlist-menu-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(240, 147, 251, 0.5);
+  box-shadow: 0 4px 15px rgba(45, 95, 63, 0.5);
 }
 </style>
 
@@ -168,7 +168,7 @@
 - **Текст**: 🌸 Составить карту желаний
 - **Ссылка**: `https://your-app.vercel.app`
 - **Открыть в**: Новой вкладке
-- **Цвет фона**: #f5576c (или любой подходящий)
+- **Цвет фона**: #4a8c5f (зеленый)
 - **Цвет текста**: #ffffff
 
 ## Способ 4: Всплывающее окно (Popup)
@@ -224,7 +224,7 @@ function openWishlistPopup() {
 ```html
 <a href="https://YOUR-APP-URL.vercel.app" 
    style="display: inline-block;
-          background: #f5576c;
+          background: #4a8c5f;
           color: white;
           padding: 12px 30px;
           border-radius: 6px;
@@ -240,13 +240,13 @@ function openWishlistPopup() {
 <a href="https://YOUR-APP-URL.vercel.app" 
    style="display: inline-block;
           background: white;
-          color: #f5576c;
+          color: #4a8c5f;
           padding: 15px 40px;
           border-radius: 30px;
           text-decoration: none;
           font-weight: 600;
-          box-shadow: 0 8px 25px rgba(245, 87, 108, 0.2);
-          border: 2px solid #f5576c;">
+          box-shadow: 0 8px 25px rgba(74, 140, 95, 0.2);
+          border: 2px solid #4a8c5f;">
   🌸 Составить карту желаний
 </a>
 ```
@@ -254,7 +254,7 @@ function openWishlistPopup() {
 ### Кнопка-баннер на всю ширину
 
 ```html
-<div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+<div style="background: linear-gradient(135deg, #2d5f3f 0%, #4a8c5f 100%);
             padding: 40px 20px;
             text-align: center;
             border-radius: 15px;
@@ -268,7 +268,7 @@ function openWishlistPopup() {
   <a href="https://YOUR-APP-URL.vercel.app" 
      style="display: inline-block;
             background: white;
-            color: #f5576c;
+            color: #4a8c5f;
             padding: 15px 40px;
             border-radius: 30px;
             text-decoration: none;

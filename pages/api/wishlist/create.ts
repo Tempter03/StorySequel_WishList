@@ -12,9 +12,9 @@ export default async function handler(
   }
 
   try {
-    const { creatorName, creatorEmail, items }: CreateWishlistRequest = req.body;
+    const { creatorName, creatorEmail, deliveryAddress, items }: CreateWishlistRequest = req.body;
 
-    if (!creatorName || !items || items.length === 0) {
+    if (!creatorName || !deliveryAddress || !items || items.length === 0) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -22,6 +22,7 @@ export default async function handler(
       id: uuidv4(),
       creatorName,
       creatorEmail,
+      deliveryAddress,
       createdAt: new Date().toISOString(),
       items: items.map(item => ({
         ...item,

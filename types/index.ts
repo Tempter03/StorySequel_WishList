@@ -12,6 +12,7 @@ export interface Wishlist {
   id: string;
   creatorName: string;
   creatorEmail?: string;
+  deliveryAddress: string;
   createdAt: string;
   items: WishlistItem[];
 }
@@ -19,6 +20,7 @@ export interface Wishlist {
 export interface CreateWishlistRequest {
   creatorName: string;
   creatorEmail?: string;
+  deliveryAddress: string;
   items: Omit<WishlistItem, 'id' | 'reserved'>[];
 }
 
